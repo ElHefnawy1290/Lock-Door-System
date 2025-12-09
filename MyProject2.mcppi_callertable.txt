@@ -39,16 +39,18 @@ main
 						Delay_5500us
 						Delay_50us
 		memset
-		get_mapped_key
-			Keypad_Key_Click
-				Keypad_Key_Press
+		read_password
+			memset
+			get_mapped_key
+				Keypad_Key_Click
+					Keypad_Key_Press
+						Delay_1us
+					Delay_10us
+			Lcd_Chr_CP
+				Lcd_Cmd
 					Delay_1us
-				Delay_10us
-		Lcd_Chr_CP
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
+					Delay_5500us
+					Delay_50us
 		EEPROM_Read
 		strcmp
 		ByteToStr
@@ -77,18 +79,23 @@ main
 						Delay_1us
 						Delay_5500us
 						Delay_50us
-		memset
+		read_password
+			memset
+			get_mapped_key
+				Keypad_Key_Click
+					Keypad_Key_Press
+						Delay_1us
+					Delay_10us
+			Lcd_Chr_CP
+				Lcd_Cmd
+					Delay_1us
+					Delay_5500us
+					Delay_50us
 		get_mapped_key
 			Keypad_Key_Click
 				Keypad_Key_Press
 					Delay_1us
 				Delay_10us
-		Lcd_Chr_CP
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
-		strcmp
 		add_user
 			Lcd_Cmd
 				Delay_1us
@@ -106,22 +113,28 @@ main
 							Delay_1us
 							Delay_5500us
 							Delay_50us
-			memset
-			get_mapped_key
-				Keypad_Key_Click
-					Keypad_Key_Press
+			read_password
+				memset
+				get_mapped_key
+					Keypad_Key_Click
+						Keypad_Key_Press
+							Delay_1us
+						Delay_10us
+				Lcd_Chr_CP
+					Lcd_Cmd
 						Delay_1us
-					Delay_10us
-			Lcd_Chr_CP
-				Lcd_Cmd
-					Delay_1us
-					Delay_5500us
-					Delay_50us
+						Delay_5500us
+						Delay_50us
 			EEPROM_Read
 			EEPROM_Write
 			ByteToStr
 				Div_8X8_U
 			Ltrim
+			Lcd_Chr_CP
+				Lcd_Cmd
+					Delay_1us
+					Delay_5500us
+					Delay_50us
 			Lcd_Out_CP
 				Lcd_Chr_CP
 					Lcd_Cmd
@@ -157,6 +170,7 @@ main
 					Delay_5500us
 					Delay_50us
 			EEPROM_Write
+		strcmp
 		ByteToStr
 			Div_8X8_U
 		Ltrim
@@ -183,3 +197,16 @@ main
 						Delay_1us
 						Delay_5500us
 						Delay_50us
+		Lcd_Out
+			Lcd_Cmd
+				Delay_1us
+				Delay_5500us
+				Delay_50us
+			Lcd_Chr_CP
+				Lcd_Cmd
+					Delay_1us
+					Delay_5500us
+					Delay_50us
+		ByteToStr
+			Div_8X8_U
+		Ltrim

@@ -615,7 +615,6 @@ mm_totalfreememsize
 modf
 msg_access
 msg_admin_mode
-msg_contact
 msg_deleted
 msg_deleting
 msg_elhefnawy
@@ -630,6 +629,7 @@ msg_opt1
 msg_opt2
 msg_saved
 msg_saving
+msg_timer
 msg_tries
 msg_user_key
 msg_user_mode
@@ -846,6 +846,7 @@ re1
 re1_bit
 re2
 re2_bit
+read_password
 read_write
 read_write_bit
 res032
@@ -936,6 +937,7 @@ s1d13700_write_text
 s1d13700_write_text_adv
 s1d13700_write_text_return_pos
 sdiv3232l
+seconds
 sen
 sen_bit
 setfdz32

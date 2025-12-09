@@ -23,9 +23,10 @@ char stored_pass[5];
 char str[7];
 short tries_left = 3;
 short user = 0, admin = 0;
-short i=0;
-short slot=0;
-short addr=0;
+short i = 0;
+short seconds = 60;
+short slot = 0;
+short addr = 0;
 short match_found = 0;
 char key;
 short is_full = 1;
@@ -48,26 +49,29 @@ const char msg_wrong[] = "Wrong Password";
 const char msg_tries[] = "Tries Left: ";
 const char msg_admin_mode[] = "ADMIN MODE";
 const char msg_enter_admin[] = "Enter ADMIN Key:";
-const char msg_elhefnawy[] = "ELHEFNAWY";
+const char msg_elhefnawy[] = "ADMIN";
 const char msg_opt1[] = "1- ADD USER";
 const char msg_opt2[] = "2- DELETE USER";
 const char msg_locked[] = "SYSTEM LOCKED";
-const char msg_contact[] = "CONTACT ADMIN";
+const char msg_timer[] = "SECONDS LEFT: ";
 const char msg_main_welcome[] = "Welcome!!";
 const char msg_empty[] = " ";
 
 
 char txt_buffer[17];
-void Lcd_Out_Const(char row, char col, const char* text) {
+void Lcd_Out_Const(char row, char col, const char *text)
+{
  char i;
- for (i = 0; i < 16 && text[i]; i++) {
+ for (i = 0; i < 16 && text[i]; i++)
+ {
  txt_buffer[i] = text[i];
  }
  txt_buffer[i] = '\0';
  Lcd_Out(row, col, txt_buffer);
 }
 
-enum SystemState {
+enum SystemState
+{
  STATE_LOGIN,
  STATE_ADMIN,
  STATE_LOCKED
@@ -75,7 +79,8 @@ enum SystemState {
 
 enum SystemState current_state = STATE_LOGIN;
 
-char get_mapped_key() {
+char get_mapped_key()
+{
  key = keypad_key_Click();
  if (key == 0) return 0;
  if (key == 16) return 'M';
@@ -92,7 +97,28 @@ char get_mapped_key() {
  return 0;
 }
 
-void add_user(){
+int read_password(){
+ enum SystemState toggleState = 1 - current_state;
+ memset(password_input, 0, sizeof password_input);
+ for (i = 0; i < 4; i++)
+ {
+ do
+ {
+ key = get_mapped_key();
+ } while (key == 0);
+
+ if (key == 'M')
+ {
+ current_state = toggleState;
+ return -1;
+ }
+ password_input[i] = key;
+ Lcd_Chr_Cp('*');
+ }
+}
+
+void add_user()
+{
  i = 0;
  id = 0;
  slot = 0;
@@ -103,30 +129,22 @@ void add_user(){
  Lcd_Out_Const(1, 1, msg_new_user);
  Lcd_Out_Const(2, 1, msg_empty);
 
- memset(password_input, 0, 5);
- for (i = 0; i < 4; i++) {
- do {
- key = get_mapped_key();
- } while (key == 0);
-
- if (key == 'M') {
- current_state = STATE_ADMIN;
+ if(read_password() == -1)
  return;
- }
- password_input[i] = key;
- Lcd_Chr_Cp('*');
- }
 
- for(slot = 0; slot < 64; slot++) {
+ for (slot = 0; slot < 64; slot++)
+ {
  addr = slot * 4;
- if (EEPROM_Read(addr) == 0xFF) {
+ if (EEPROM_Read(addr) == 0xFF)
+ {
  is_full = 0;
  break;
  }
  id++;
  }
 
- if (is_full) {
+ if (is_full)
+ {
  lcd_cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 1, msg_mem_full);
  delay_ms(1000);
@@ -136,9 +154,10 @@ void add_user(){
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 1, msg_saving);
 
- for(i = 0; i < 4; i++) {
+ for (i = 0; i < 4; i++)
+ {
  EEPROM_Write(addr + i, password_input[i]);
- delay_ms(20);
+ delay_ms(160);
  }
  ByteToStr(id, str);
  Ltrim(str);
@@ -150,96 +169,101 @@ void add_user(){
  delay_ms(1000);
 }
 
-void delete_user(){
+void delete_user()
+{
  i = 0;
- id=0;
+ id = 0;
  slot = 0;
  addr = 0;
 
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 1, msg_userid);
 
- for (i = 0; i < 2; i++) {
- do {
+ for (i = 0; i < 2; i++)
+ {
+ do
+ {
  key = get_mapped_key();
  } while (key == 0);
 
- if (key == 'M') {
- current_state = STATE_ADMIN;
+ if (key == 'M')
+ {
+ current_state = STATE_LOGIN;
  return;
  }
- id = id*10 + (key - '0');
+ id = id * 10 + (key - '0');
  Lcd_Chr_Cp('*');
  }
 
- addr = id*4;
+ addr = id * 4;
  EEPROM_Write(addr, 0xff);
  Lcd_Out_Const(1, 1, msg_deleting);
- delay_ms(20);
+ delay_ms(160);
  Lcd_Out_Const(1, 1, msg_deleted);
  delay_ms(1000);
 }
 
-void login_mode() {
- i=0;
- slot=0;
- addr=0;
+void login_mode()
+{
+ i = 0;
+ slot = 0;
+ addr = 0;
  match_found = 0;
 
  Lcd_Cmd(_LCD_CLEAR);
+ portC.f0 = 0;
  portC.f1 = 0;
  portC.f2 = 1;
- if(!user){
+ if (!user)
+ {
  Lcd_Out_Const(1, 1, msg_user_mode);
- delay_ms(200);
+ delay_ms(1000);
  user = 1;
  admin = 0;
  }
  Lcd_Out_Const(1, 1, msg_enter_key);
 
- memset(password_input, 0, sizeof password_input);
  memset(stored_pass, 0, sizeof stored_pass);
 
- for (i = 0; i < 4; i++) {
- do {
- key = get_mapped_key();
- } while (key == 0);
-
- if (key == 'M') {
- current_state = STATE_ADMIN;
+ if(read_password() == -1)
  return;
- }
- password_input[i] = key;
- Lcd_Chr_Cp('*');
- }
 
- for (slot = 0; slot < 64; slot++) {
+ for (slot = 0; slot < 64; slot++)
+ {
  addr = slot * 4;
 
- if (EEPROM_Read(addr) == 0xFF) continue;
+ if (EEPROM_Read(addr) == 0xFF)
+ continue;
 
- for(i=0; i<4; i++) {
+ for (i = 0; i < 4; i++)
+ {
  stored_pass[i] = EEPROM_Read(addr + i);
  delay_ms(10);
  }
 
- if (strcmp(password_input, stored_pass) == 0) {
+ if (strcmp(password_input, stored_pass) == 0)
+ {
  match_found = 1;
  break;
  }
  }
 
- if (match_found) {
+ if (match_found)
+ {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 2, msg_welcome);
  Lcd_Out_Const(2, 3, msg_access);
+ portC.f0 = 1;
  portC.f1 = 1;
  portC.f2 = 0;
- delay_ms(200);
+ delay_ms(1000);
  tries_left = 3;
- } else {
+ }
+ else
+ {
  tries_left--;
- if (tries_left <= 0) {
+ if (tries_left <= 0)
+ {
  current_state = STATE_LOCKED;
  return;
  }
@@ -251,58 +275,71 @@ void login_mode() {
  ByteToStr(tries_left, str);
  Ltrim(str);
  Lcd_out_cp(str);
- delay_ms(200);
+ delay_ms(1000);
  }
 }
 
-void admin_mode() {
- i=0;
+void admin_mode()
+{
+ i = 0;
  Lcd_Cmd(_LCD_CLEAR);
+ portC.f0 = 0;
  portC.f1 = 0;
  portC.f2 = 0;
- if(!admin){
+ if (!admin)
+ {
  Lcd_Out_Const(1, 1, msg_admin_mode);
- delay_ms(100);
+ delay_ms(1000);
  admin = 1;
  user = 0;
- }
-
  Lcd_Out_Const(1, 1, msg_enter_admin);
  Lcd_Out_Const(2, 1, msg_empty);
- memset(password_input, 0, sizeof password_input);
 
- for (i = 0; i < 4; i++) {
- do {
- key = get_mapped_key();
- } while (key == 0);
-
- if (key == 'M') {
- current_state = STATE_ADMIN;
+ if(read_password() == -1)
  return;
  }
- password_input[i] = key;
- Lcd_Chr_Cp('*');
+ else {
+ Lcd_Out_Const(1, 1, msg_opt1);
+ Lcd_Out_Const(2, 1, msg_opt2);
+ do
+ {
+ key = get_mapped_key();
+ } while (key == 0);
+ if (key == '1')
+ add_user();
+ else if(key == '2')
+ delete_user();
+ else if(key == 'M')
+ current_state = STATE_LOGIN;
+ return;
  }
 
- if (strcmp(password_input, ADMIN_KEY) == 0) {
+ if (strcmp(password_input, ADMIN_KEY) == 0)
+ {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 2, msg_welcome);
  Lcd_Out_Const(2, 3, msg_elhefnawy);
- delay_ms(200);
+ delay_ms(1000);
  tries_left = 3;
  Lcd_Out_Const(1, 1, msg_opt1);
  Lcd_Out_Const(2, 1, msg_opt2);
- do{
+ do
+ {
  key = get_mapped_key();
- }while(key == 0);
- if(key == '1')
+ } while (key == 0);
+ if (key == '1')
  add_user();
- else
+ else if(key == '2')
  delete_user();
-
- } else {
+ else if(key == 'M')
+ current_state = STATE_LOGIN;
+ return;
+ }
+ else
+ {
  tries_left--;
- if (tries_left <= 0) {
+ if (tries_left <= 0)
+ {
  current_state = STATE_LOCKED;
  return;
  }
@@ -314,24 +351,49 @@ void admin_mode() {
  ByteToStr(tries_left, str);
  Ltrim(str);
  Lcd_out_cp(str);
- delay_ms(200);
+ delay_ms(1000);
  }
+}
 
+void suspended_mode()
+{
+
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Out_Const(1, 1, msg_locked);
+ Lcd_Out_Const(2, 1, msg_timer);
+ portc.f0 = 0;
+ portC.f1 = 0;
+ portc.f2 = 1;
+ seconds = 60;
+
+ while (seconds > 0)
+ {
+ Lcd_out(2, 15, "  ");
+ ByteToStr(seconds, str);
+ Ltrim(str);
+ Lcd_out(2, 15, str);
+ i = 0;
+ while (i < 31)
+ {
+ if (INTCON.TMR0IF == 1)
+ {
+ INTCON.TMR0IF = 0;
+ i++;
+ }
+ }
+ seconds--;
+ }
+ tries_left = 3;
  current_state = STATE_LOGIN;
 }
 
-void suspended_mode() {
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out_Const(1, 1, msg_locked);
- Lcd_Out_Const(2, 1, msg_contact);
+void main()
+{
 
- while(1) {
- portc.f2 = 1;
- }
-}
+ OPTION_REG = 0b10000111;
+ TMR0 = 0;
+ INTCON.TMR0IF = 0;
 
-
-void main() {
  trisc = 0;
  portc = 0;
  portc.f2 = 1;
@@ -342,10 +404,12 @@ void main() {
  Lcd_Cmd(_LCD_CLEAR);
 
  Lcd_Out_Const(1, 1, msg_main_welcome);
- delay_ms(200);
+ delay_ms(1000);
 
- while(1) {
- switch (current_state) {
+ while (1)
+ {
+ switch (current_state)
+ {
  case STATE_LOGIN:
  login_mode();
  break;
