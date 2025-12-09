@@ -15,19 +15,56 @@ sbit LCD_RS_Direction at TRISD5_bit;
 
 char keypadPort at PORTB;
 
+// --- Global Variables (RAM) ---
 char ADMIN_KEY[5] = "0000";
 char password_input[5];
 char stored_pass[5];
 char str[7];
-unsigned short tries_left = 3;
-unsigned short user = 0, admin = 0;
-unsigned short i=0;
-unsigned short slot=0;
-unsigned short addr=0;
-unsigned short match_found = 0;
-unsigned char key;
-unsigned short is_full = 1;
-unsigned short id = 0;
+short tries_left = 3;
+short user = 0, admin = 0;
+short i=0;
+short slot=0;
+short addr=0;
+short match_found = 0;
+char key;
+short is_full = 1;
+short id = 0;
+
+// --- Constant Messages (Stored in ROM to save RAM) ---
+const char msg_new_user[]     = "New User Key:";
+const char msg_mem_full[]     = "Memory Full!";
+const char msg_saving[]       = "Saving...";
+const char msg_saved[]        = "User Saved!";
+const char msg_userid[]       = "USER ID: ";
+const char msg_user_key[]     = "User Key:";
+const char msg_deleting[]     = "Deleting ...";
+const char msg_deleted[]      = "USER Deleted";
+const char msg_user_mode[]    = "USER MODE";
+const char msg_enter_key[]    = "Enter Key:";
+const char msg_welcome[]      = "WELCOME";
+const char msg_access[]       = "ACCESS GRANTED";
+const char msg_wrong[]        = "Wrong Password";
+const char msg_tries[]        = "Tries Left: ";
+const char msg_admin_mode[]   = "ADMIN MODE";
+const char msg_enter_admin[]  = "Enter ADMIN Key:";
+const char msg_elhefnawy[]    = "ELHEFNAWY";
+const char msg_opt1[]         = "1- ADD USER";
+const char msg_opt2[]         = "2- DELETE USER";
+const char msg_locked[]       = "SYSTEM LOCKED";
+const char msg_contact[]      = "CONTACT ADMIN";
+const char msg_main_welcome[] = "Welcome!!";
+const char msg_empty[]        = " ";
+
+// --- Helper for Printing ROM Strings ---
+char txt_buffer[17];
+void Lcd_Out_Const(char row, char col, const char* text) {
+    char i;
+    for (i = 0; i < 16 && text[i]; i++) {
+        txt_buffer[i] = text[i];
+    }
+    txt_buffer[i] = '\0';
+    Lcd_Out(row, col, txt_buffer);
+}
 
 enum SystemState {
     STATE_LOGIN,
@@ -37,14 +74,10 @@ enum SystemState {
 
 enum SystemState current_state = STATE_LOGIN;
 
-
 char get_mapped_key() {
     key = keypad_key_Click();
-
     if (key == 0) return 0;
-
     if (key == 16) return 'M';
-
     if (key == 1) return '7';
     if (key == 2) return '8';
     if (key == 3) return '9';
@@ -55,7 +88,6 @@ char get_mapped_key() {
     if (key == 10) return '2';
     if (key == 11) return '3';
     if (key == 14) return '0';
-
     return 0;
 }
 
@@ -64,11 +96,11 @@ void add_user(){
     id = 0;
     slot = 0;
     addr = 0;
-    key;
     is_full = 1;
 
     lcd_cmd(_LCD_CLEAR);
-    lcd_out(1, 1, "New User Key:");
+    Lcd_Out_Const(1, 1, msg_new_user);
+    Lcd_Out_Const(2, 1, msg_empty);
 
     memset(password_input, 0, 5);
     for (i = 0; i < 4; i++) {
@@ -81,7 +113,7 @@ void add_user(){
             return;
         }
         password_input[i] = key;
-        Lcd_out_cp("*");
+        Lcd_Chr_Cp('*');
     }
 
     for(slot = 0; slot < 64; slot++) {
@@ -95,13 +127,13 @@ void add_user(){
 
     if (is_full) {
         lcd_cmd(_LCD_CLEAR);
-        lcd_out(1, 1, "Memory Full!");
+        Lcd_Out_Const(1, 1, msg_mem_full);
         delay_ms(1000);
         return;
     }
 
     Lcd_Cmd(_LCD_CLEAR);
-    Lcd_out(1, 1, "Saving...");
+    Lcd_Out_Const(1, 1, msg_saving);
 
     for(i = 0; i < 4; i++) {
         EEPROM_Write(addr + i, password_input[i]);
@@ -109,10 +141,10 @@ void add_user(){
     }
     ByteToStr(id, str);
     Ltrim(str);
-    Lcd_out(1, 1, "User Saved!");
-    Lcd_out(2,1,"USER ID: ");
+    Lcd_Out_Const(1, 1, msg_saved);
+    Lcd_Out_Const(2, 1, msg_userid);
     if (id < 10)
-       Lcd_out_cp("0");
+       Lcd_Chr_Cp('0');
     lcd_out_cp(str);
     delay_ms(1000);
 }
@@ -124,7 +156,7 @@ void delete_user(){
     addr = 0;
 
     Lcd_Cmd(_LCD_CLEAR);
-    Lcd_out(1, 1, "User Key:");
+    Lcd_Out_Const(1, 1, msg_userid);
 
     for (i = 0; i < 2; i++) {
         do {
@@ -136,20 +168,14 @@ void delete_user(){
             return;
         }
         id = id*10 + (key - '0');
-        Lcd_out_cp("*");
+        Lcd_Chr_Cp('*');
     }
 
-    for(slot = 0; slot < 64; slot++) {
-        addr = slot * 4;
-        if (id == slot) {
-            EEPROM_Write(addr, 0xff);
-            Lcd_out(1, 1, "Deleting ...");
-            delay_ms(20);
-            break;
-        }
-        id++;
-    }
-    Lcd_out(1, 1, "USER Deleted");
+    addr = id*4;
+    EEPROM_Write(addr, 0xff);
+    Lcd_Out_Const(1, 1, msg_deleting);
+    delay_ms(20);
+    Lcd_Out_Const(1, 1, msg_deleted);
     delay_ms(1000);
 }
 
@@ -163,12 +189,12 @@ void login_mode() {
     portC.f1 = 0;
     portC.f2 = 1;
     if(!user){
-              Lcd_out(1, 1, "USER MODE");
-              delay_ms(200);
-              user = 1;
-              admin = 0;
+             Lcd_Out_Const(1, 1, msg_user_mode);
+             delay_ms(200);
+             user = 1;
+             admin = 0;
     }
-    Lcd_out(1, 1, "Enter Key:");
+    Lcd_Out_Const(1, 1, msg_enter_key);
 
     memset(password_input, 0, sizeof password_input);
     memset(stored_pass, 0, sizeof stored_pass);
@@ -183,7 +209,7 @@ void login_mode() {
             return;
         }
         password_input[i] = key;
-        Lcd_out_cp("*");
+        Lcd_Chr_Cp('*');
     }
 
     for (slot = 0; slot < 64; slot++) {
@@ -204,8 +230,8 @@ void login_mode() {
 
     if (match_found) {
         Lcd_Cmd(_LCD_CLEAR);
-        Lcd_out(1, 2, "WELCOME");
-        Lcd_out(2, 3, "ACCESS GRANTED");
+        Lcd_Out_Const(1, 2, msg_welcome);
+        Lcd_Out_Const(2, 3, msg_access);
         portC.f1 = 1;
         portC.f2 = 0;
         delay_ms(200);
@@ -218,9 +244,9 @@ void login_mode() {
         }
 
         Lcd_Cmd(_LCD_CLEAR);
-        Lcd_out(1, 1, "Wrong Password");
+        Lcd_Out_Const(1, 1, msg_wrong);
 
-        Lcd_out(2, 1, "Tries Left: ");
+        Lcd_Out_Const(2, 1, msg_tries);
         ByteToStr(tries_left, str);
         Ltrim(str);
         Lcd_out_cp(str);
@@ -234,14 +260,14 @@ void admin_mode() {
     portC.f1 = 0;
     portC.f2 = 0;
     if(!admin){
-              Lcd_out(1, 1, "ADMIN MODE");
-              delay_ms(100);
-              admin = 1;
-              user = 0;
+             Lcd_Out_Const(1, 1, msg_admin_mode);
+             delay_ms(100);
+             admin = 1;
+             user = 0;
     }
 
-    Lcd_out(1, 1, "Enter ADMIN Key:");
-    lcd_out(2,1," ");
+    Lcd_Out_Const(1, 1, msg_enter_admin);
+    Lcd_Out_Const(2, 1, msg_empty);
     memset(password_input, 0, sizeof password_input);
 
     for (i = 0; i < 4; i++) {
@@ -254,17 +280,17 @@ void admin_mode() {
             return;
         }
         password_input[i] = key;
-        Lcd_out_cp("*");
+        Lcd_Chr_Cp('*');
     }
 
     if (strcmp(password_input, ADMIN_KEY) == 0) {
         Lcd_Cmd(_LCD_CLEAR);
-        Lcd_out(1, 2, "WELCOME");
-        Lcd_out(2, 3, "ELHEFNAWY");
+        Lcd_Out_Const(1, 2, msg_welcome);
+        Lcd_Out_Const(2, 3, msg_elhefnawy);
         delay_ms(200);
         tries_left = 3;
-        LCD_OUT(1,1,"1- ADD KEY");
-        LCD_OUT(2,1,"2- DELETE KEY");
+        Lcd_Out_Const(1, 1, msg_opt1);
+        Lcd_Out_Const(2, 1, msg_opt2);
         do{
            key = get_mapped_key();
         }while(key == 0);
@@ -281,23 +307,22 @@ void admin_mode() {
         }
 
         Lcd_Cmd(_LCD_CLEAR);
-        Lcd_out(1, 1, "Wrong Password");
+        Lcd_Out_Const(1, 1, msg_wrong);
 
-        Lcd_out(2, 1, "Tries Left: ");
+        Lcd_Out_Const(2, 1, msg_tries);
         ByteToStr(tries_left, str);
         Ltrim(str);
         Lcd_out_cp(str);
         delay_ms(200);
     }
 
-
     current_state = STATE_LOGIN;
 }
 
 void suspended_mode() {
     Lcd_Cmd(_LCD_CLEAR);
-    Lcd_out(1, 1, "SYSTEM LOCKED");
-    Lcd_out(2, 1, "CONTACT ADMIN");
+    Lcd_Out_Const(1, 1, msg_locked);
+    Lcd_Out_Const(2, 1, msg_contact);
 
     while(1) {
         portc.f2 = 1;
@@ -306,7 +331,6 @@ void suspended_mode() {
 
 // --- MAIN FUNCTION ---
 void main() {
-    // Init
     trisc = 0;
     portc = 0;
     portc.f2 = 1;
@@ -316,7 +340,7 @@ void main() {
     Lcd_Cmd(_LCD_CURSOR_OFF);
     Lcd_Cmd(_LCD_CLEAR);
 
-    Lcd_out(1, 1, "Welcome!!");
+    Lcd_Out_Const(1, 1, msg_main_welcome);
     delay_ms(200);
 
     while(1) {
