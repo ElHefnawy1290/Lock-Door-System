@@ -940,6 +940,9 @@ sdiv3232l
 seconds
 sen
 sen_bit
+servo_move
+servo_pin
+servo_pin_direction
 setfdz32
 setfov32
 setfun32
@@ -1404,6 +1407,7 @@ uldiv
 user
 vdelay_advanced_ms
 vdelay_ms
+vdelay_us
 vref_mask
 w
 wcol

@@ -53,6 +53,9 @@ main
 					Delay_50us
 		EEPROM_Read
 		strcmp
+		Servo_Move
+			Mul_16X16_U
+			VDelay_us
 		ByteToStr
 			Div_8X8_U
 		Ltrim

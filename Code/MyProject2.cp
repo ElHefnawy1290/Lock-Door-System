@@ -6,7 +6,9 @@ sbit LCD_D6 at RD2_bit;
 sbit LCD_D7 at RD3_bit;
 sbit LCD_EN at RD4_bit;
 sbit LCD_RS at RD5_bit;
+sbit Servo_Pin at RC0_bit;
 
+sbit Servo_Pin_Direction at TRISC0_bit;
 sbit LCD_D4_Direction at TRISD0_bit;
 sbit LCD_D5_Direction at TRISD1_bit;
 sbit LCD_D6_Direction at TRISD2_bit;
@@ -56,6 +58,27 @@ const char msg_locked[] = "SYSTEM LOCKED";
 const char msg_timer[] = "SECONDS LEFT: ";
 const char msg_main_welcome[] = "Welcome!!";
 const char msg_empty[] = " ";
+
+void VDelay_us(unsigned int time_us) {
+ while(time_us > 10) {
+ Delay_us(7);
+ time_us = time_us - 10;
+ }
+ if(time_us > 0) Delay_us(1);
+}
+
+void Servo_Move(int angle) {
+ unsigned int on_time;
+ if (angle < 0) angle = 0;
+ if (angle > 180) angle = 180;
+
+ on_time = 600 + (angle * 10);
+
+ Servo_Pin = 1;
+ VDelay_us(on_time);
+ Servo_Pin = 0;
+ Delay_ms(17);
+}
 
 
 char txt_buffer[17];
@@ -147,7 +170,7 @@ void add_user()
  {
  lcd_cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 1, msg_mem_full);
- delay_ms(1000);
+ delay_ms(2000);
  return;
  }
 
@@ -166,7 +189,7 @@ void add_user()
  if (id < 10)
  Lcd_Chr_Cp('0');
  lcd_out_cp(str);
- delay_ms(1000);
+ delay_ms(2000);
 }
 
 void delete_user()
@@ -197,8 +220,9 @@ void delete_user()
 
  addr = id * 4;
  EEPROM_Write(addr, 0xff);
- Lcd_Out_Const(1, 1, msg_deleting);
  delay_ms(160);
+ Lcd_Out_Const(1, 1, msg_deleting);
+ delay_ms(500);
  Lcd_Out_Const(1, 1, msg_deleted);
  delay_ms(1000);
 }
@@ -214,14 +238,16 @@ void login_mode()
  portC.f0 = 0;
  portC.f1 = 0;
  portC.f2 = 1;
+ portC.f3 = 0;
  if (!user)
  {
  Lcd_Out_Const(1, 1, msg_user_mode);
- delay_ms(1000);
+ delay_ms(3000);
  user = 1;
  admin = 0;
  }
  Lcd_Out_Const(1, 1, msg_enter_key);
+ Lcd_Out_Const(2, 1, msg_empty);
 
  memset(stored_pass, 0, sizeof stored_pass);
 
@@ -256,8 +282,11 @@ void login_mode()
  portC.f0 = 1;
  portC.f1 = 1;
  portC.f2 = 0;
- delay_ms(1000);
- tries_left = 3;
+ for(i=0; i<50; i++)
+ Servo_Move(180);
+ delay_ms(10000);
+ for(i=0; i<50; i++)
+ Servo_Move(0);
  }
  else
  {
@@ -275,7 +304,7 @@ void login_mode()
  ByteToStr(tries_left, str);
  Ltrim(str);
  Lcd_out_cp(str);
- delay_ms(1000);
+ delay_ms(2000);
  }
 }
 
@@ -286,10 +315,11 @@ void admin_mode()
  portC.f0 = 0;
  portC.f1 = 0;
  portC.f2 = 0;
+ portC.f3 = 0;
  if (!admin)
  {
  Lcd_Out_Const(1, 1, msg_admin_mode);
- delay_ms(1000);
+ delay_ms(3000);
  admin = 1;
  user = 0;
  Lcd_Out_Const(1, 1, msg_enter_admin);
@@ -319,7 +349,7 @@ void admin_mode()
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out_Const(1, 2, msg_welcome);
  Lcd_Out_Const(2, 3, msg_elhefnawy);
- delay_ms(1000);
+ delay_ms(2000);
  tries_left = 3;
  Lcd_Out_Const(1, 1, msg_opt1);
  Lcd_Out_Const(2, 1, msg_opt2);
@@ -351,7 +381,7 @@ void admin_mode()
  ByteToStr(tries_left, str);
  Ltrim(str);
  Lcd_out_cp(str);
- delay_ms(1000);
+ delay_ms(2000);
  }
 }
 
@@ -364,6 +394,7 @@ void suspended_mode()
  portc.f0 = 0;
  portC.f1 = 0;
  portc.f2 = 1;
+ portC.f3 = 1;
  seconds = 60;
 
  while (seconds > 0)
@@ -387,6 +418,7 @@ void suspended_mode()
  current_state = STATE_LOGIN;
 }
 
+
 void main()
 {
 
@@ -404,7 +436,7 @@ void main()
  Lcd_Cmd(_LCD_CLEAR);
 
  Lcd_Out_Const(1, 1, msg_main_welcome);
- delay_ms(1000);
+ delay_ms(3000);
 
  while (1)
  {
