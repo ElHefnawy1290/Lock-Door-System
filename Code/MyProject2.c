@@ -58,18 +58,24 @@ const char msg_timer[] = "SECONDS LEFT: ";
 const char msg_main_welcome[] = "Welcome!!";
 const char msg_empty[] = " ";
 
-void VDelay_us(unsigned int time_us) {
-    while(time_us > 10) {
+void VDelay_us(unsigned int time_us)
+{
+    while (time_us > 10)
+    {
         Delay_us(7);
         time_us = time_us - 10;
     }
-    if(time_us > 0) Delay_us(1);
+    if (time_us > 0)
+        Delay_us(1);
 }
 
-void Servo_Move(int angle) {
+void Servo_Move(int angle)
+{
     unsigned int on_time;
-    if (angle < 0) angle = 0;
-    if (angle > 180) angle = 180;
+    if (angle < 0)
+        angle = 0;
+    if (angle > 180)
+        angle = 180;
 
     on_time = 600 + (angle * 10);
 
@@ -104,25 +110,38 @@ enum SystemState current_state = STATE_LOGIN;
 char get_mapped_key()
 {
     key = keypad_key_Click();
-    if (key == 0) return 0;
-    if (key == 16) return 'M';
-    if (key == 1) return '1';
-    if (key == 2) return '2';
-    if (key == 3) return '3';
-    if (key == 5) return '4';
-    if (key == 6) return '5';
-    if (key == 7) return '6';
-    if (key == 9) return '7';
-    if (key == 10) return '8';
-    if (key == 11) return '9';
-    if (key == 14) return '0';
+    if (key == 0)
+        return 0;
+    if (key == 16)
+        return 'M';
+    if (key == 1)
+        return '1';
+    if (key == 2)
+        return '2';
+    if (key == 3)
+        return '3';
+    if (key == 5)
+        return '4';
+    if (key == 6)
+        return '5';
+    if (key == 7)
+        return '6';
+    if (key == 9)
+        return '7';
+    if (key == 10)
+        return '8';
+    if (key == 11)
+        return '9';
+    if (key == 14)
+        return '0';
     return 0;
 }
 
-int read_password(){
-     enum SystemState toggleState = 1 - current_state;
-     memset(password_input, 0, sizeof password_input);
-     for (i = 0; i < 4; i++)
+int read_password()
+{
+    enum SystemState toggleState = 1 - current_state;
+    memset(password_input, 0, sizeof password_input);
+    for (i = 0; i < 4; i++)
     {
         do
         {
@@ -151,8 +170,8 @@ void add_user()
     Lcd_Out_Const(1, 1, msg_new_user);
     Lcd_Out_Const(2, 1, msg_empty);
 
-   if(read_password() == -1)
-              return;
+    if (read_password() == -1)
+        return;
 
     for (slot = 0; slot < 64; slot++)
     {
@@ -250,8 +269,8 @@ void login_mode()
 
     memset(stored_pass, 0, sizeof stored_pass);
 
-    if(read_password() == -1)
-          return;
+    if (read_password() == -1)
+        return;
 
     for (slot = 0; slot < 64; slot++)
     {
@@ -281,11 +300,11 @@ void login_mode()
         portC.f0 = 1;
         portC.f1 = 1;
         portC.f2 = 0;
-        for(i=0; i<50; i++)
-                 Servo_Move(180);
+        for (i = 0; i < 50; i++)
+            Servo_Move(180);
         delay_ms(10000);
-        for(i=0; i<50; i++)
-                 Servo_Move(0);
+        for (i = 0; i < 50; i++)
+            Servo_Move(0);
     }
     else
     {
@@ -321,27 +340,13 @@ void admin_mode()
         delay_ms(3000);
         admin = 1;
         user = 0;
-        Lcd_Out_Const(1, 1, msg_enter_admin);
-        Lcd_Out_Const(2, 1, msg_empty);
+    }
 
-        if(read_password() == -1)
-              return;
-    }
-    else {
-          Lcd_Out_Const(1, 1, msg_opt1);
-          Lcd_Out_Const(2, 1, msg_opt2);
-          do
-          {
-            key = get_mapped_key();
-          } while (key == 0);
-          if (key == '1')
-              add_user();
-          else if(key == '2')
-              delete_user();
-          else if(key == 'M')
-               current_state = STATE_LOGIN;
-          return;
-    }
+    Lcd_Out_Const(1, 1, msg_enter_admin);
+    Lcd_Out_Const(2, 1, msg_empty);
+
+    if (read_password() == -1)
+        return;
 
     if (strcmp(password_input, ADMIN_KEY) == 0)
     {
@@ -357,12 +362,12 @@ void admin_mode()
             key = get_mapped_key();
         } while (key == 0);
         if (key == '1')
-              add_user();
-          else if(key == '2')
-              delete_user();
-          else if(key == 'M')
-               current_state = STATE_LOGIN;
-          return;
+            add_user();
+        else if (key == '2')
+            delete_user();
+        else if (key == 'M')
+            current_state = STATE_LOGIN;
+        return;
     }
     else
     {
