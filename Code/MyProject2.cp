@@ -1,4 +1,4 @@
-#line 1 "D:/Engineering/College/3rd computer/1st term/Embedded systems/Project/MyProject2.c"
+#line 1 "D:/Engineering/College/3rd computer/1st term/Embedded systems/Project/Lock-Door-System/Code/MyProject2.c"
 
 sbit LCD_D4 at RD0_bit;
 sbit LCD_D5 at RD1_bit;
@@ -59,6 +59,15 @@ const char msg_timer[] = "SECONDS LEFT: ";
 const char msg_main_welcome[] = "Welcome!!";
 const char msg_empty[] = " ";
 
+enum SystemState
+{
+ STATE_LOGIN,
+ STATE_ADMIN,
+ STATE_LOCKED
+};
+
+enum SystemState current_state = STATE_LOGIN;
+
 void VDelay_us(unsigned int time_us) {
  while(time_us > 10) {
  Delay_us(7);
@@ -93,29 +102,20 @@ void Lcd_Out_Const(char row, char col, const char *text)
  Lcd_Out(row, col, txt_buffer);
 }
 
-enum SystemState
-{
- STATE_LOGIN,
- STATE_ADMIN,
- STATE_LOCKED
-};
-
-enum SystemState current_state = STATE_LOGIN;
-
 char get_mapped_key()
 {
  key = keypad_key_Click();
  if (key == 0) return 0;
  if (key == 16) return 'M';
- if (key == 1) return '7';
- if (key == 2) return '8';
- if (key == 3) return '9';
+ if (key == 1) return '1';
+ if (key == 2) return '2';
+ if (key == 3) return '3';
  if (key == 5) return '4';
  if (key == 6) return '5';
  if (key == 7) return '6';
- if (key == 9) return '1';
- if (key == 10) return '2';
- if (key == 11) return '3';
+ if (key == 9) return '7';
+ if (key == 10) return '8';
+ if (key == 11) return '9';
  if (key == 14) return '0';
  return 0;
 }

@@ -58,7 +58,17 @@ const char msg_timer[] = "SECONDS LEFT: ";
 const char msg_main_welcome[] = "Welcome!!";
 const char msg_empty[] = " ";
 
-void VDelay_us(unsigned int time_us) {
+enum SystemState
+{
+    STATE_LOGIN,
+    STATE_ADMIN,
+    STATE_LOCKED
+};
+
+enum SystemState current_state = STATE_LOGIN;
+
+void VDelay_us(unsigned int time_us)  // Helper function for delaying Motor
+{
     while(time_us > 10) {
         Delay_us(7);
         time_us = time_us - 10;
@@ -66,7 +76,8 @@ void VDelay_us(unsigned int time_us) {
     if(time_us > 0) Delay_us(1);
 }
 
-void Servo_Move(int angle) {
+void Servo_Move(int angle) // Helper function for Rotating Motor
+ {
     unsigned int on_time;
     if (angle < 0) angle = 0;
     if (angle > 180) angle = 180;
@@ -79,9 +90,8 @@ void Servo_Move(int angle) {
     Delay_ms(17);
 }
 
-// --- Helper for Printing ROM Strings ---
 char txt_buffer[17];
-void Lcd_Out_Const(char row, char col, const char *text)
+void Lcd_Out_Const(char row, char col, const char *text) // Helper for Printing ROM Strings
 {
     char i;
     for (i = 0; i < 16 && text[i]; i++)
@@ -92,16 +102,7 @@ void Lcd_Out_Const(char row, char col, const char *text)
     Lcd_Out(row, col, txt_buffer);
 }
 
-enum SystemState
-{
-    STATE_LOGIN,
-    STATE_ADMIN,
-    STATE_LOCKED
-};
-
-enum SystemState current_state = STATE_LOGIN;
-
-char get_mapped_key()
+char get_mapped_key()  // Mapping user input
 {
     key = keypad_key_Click();
     if (key == 0) return 0;
@@ -119,7 +120,8 @@ char get_mapped_key()
     return 0;
 }
 
-int read_password(){
+int read_password()   // Reading password in all cases
+{
      enum SystemState toggleState = 1 - current_state;
      memset(password_input, 0, sizeof password_input);
      for (i = 0; i < 4; i++)
@@ -139,7 +141,7 @@ int read_password(){
     }
 }
 
-void add_user()
+void add_user() // Adding User                   ò
 {
     i = 0;
     id = 0;
@@ -191,7 +193,7 @@ void add_user()
     delay_ms(2000);
 }
 
-void delete_user()
+void delete_user()  // Deleting User
 {
     i = 0;
     id = 0;
@@ -226,7 +228,7 @@ void delete_user()
     delay_ms(1000);
 }
 
-void login_mode()
+void login_mode()  // USER Mode
 {
     i = 0;
     slot = 0;
@@ -307,7 +309,7 @@ void login_mode()
     }
 }
 
-void admin_mode()
+void admin_mode()  // ADMIN Mode
 {
     i = 0;
     Lcd_Cmd(_LCD_CLEAR);
@@ -357,10 +359,10 @@ void admin_mode()
             key = get_mapped_key();
         } while (key == 0);
         if (key == '1')
-              add_user();
-          else if(key == '2')
+               add_user();
+        else if(key == '2')
               delete_user();
-          else if(key == 'M')
+        else if(key == 'M')
                current_state = STATE_LOGIN;
           return;
     }
@@ -384,7 +386,7 @@ void admin_mode()
     }
 }
 
-void suspended_mode()
+void suspended_mode()   // SUSPENDED Mode
 {
 
     Lcd_Cmd(_LCD_CLEAR);
@@ -417,8 +419,7 @@ void suspended_mode()
     current_state = STATE_LOGIN;
 }
 
-// --- MAIN FUNCTION ---
-void main()
+void main() // MAIN Function
 {
 
     OPTION_REG = 0b10000111;

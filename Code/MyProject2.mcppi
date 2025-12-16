@@ -33,10 +33,11 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=3
+Count=4
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path2=D:\Engineering\College\3rd computer\1st term\Embedded systems\Project\
+Path2=D:\Engineering\College\3rd computer\1st term\Embedded systems\Project\Lock-Door-System\Code\
+Path3=D:\Engineering\College\3rd computer\1st term\Embedded systems\Project\
 [HEADER_PATH]
 Count=0
 [HEADERS]
