@@ -6,7 +6,7 @@
 > **👇 Watch the full system in action!**
 
 
-https://github.com/user-attachments/assets/368186a3-1165-470d-8518-d646523c8dac
+https://github.com/user-attachments/assets/bf2b3777-7ee9-4df3-b32d-be1f828475db
 
 
 ---
