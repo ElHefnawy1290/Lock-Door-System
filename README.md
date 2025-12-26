@@ -5,7 +5,11 @@
 ## 🎥 Project Live Demo
 > **👇 Watch the full system in action!**
 
-[🚨 DRAG AND DROP YOUR VIDEO FILE HERE TO UPLOAD IT 🚨]
+[
+
+https://github.com/user-attachments/assets/368186a3-1165-470d-8518-d646523c8dac
+
+]
 
 ---
 
