@@ -107,15 +107,15 @@ char get_mapped_key()  // Mapping user input
     key = keypad_key_Click();
     if (key == 0) return 0;
     if (key == 16) return 'M';
-    if (key == 1) return '1';
-    if (key == 2) return '2';
-    if (key == 3) return '3';
+    if (key == 1) return '7';
+    if (key == 2) return '8';
+    if (key == 3) return '9';
     if (key == 5) return '4';
     if (key == 6) return '5';
     if (key == 7) return '6';
-    if (key == 9) return '7';
-    if (key == 10) return '8';
-    if (key == 11) return '9';
+    if (key == 9) return '1';
+    if (key == 10) return '2';
+    if (key == 11) return '3';
     if (key == 14) return '0';
     return 0;
 }

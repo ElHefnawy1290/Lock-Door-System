@@ -68,7 +68,8 @@ enum SystemState
 
 enum SystemState current_state = STATE_LOGIN;
 
-void VDelay_us(unsigned int time_us) {
+void VDelay_us(unsigned int time_us)
+{
  while(time_us > 10) {
  Delay_us(7);
  time_us = time_us - 10;
@@ -76,7 +77,8 @@ void VDelay_us(unsigned int time_us) {
  if(time_us > 0) Delay_us(1);
 }
 
-void Servo_Move(int angle) {
+void Servo_Move(int angle)
+ {
  unsigned int on_time;
  if (angle < 0) angle = 0;
  if (angle > 180) angle = 180;
@@ -88,7 +90,6 @@ void Servo_Move(int angle) {
  Servo_Pin = 0;
  Delay_ms(17);
 }
-
 
 char txt_buffer[17];
 void Lcd_Out_Const(char row, char col, const char *text)
@@ -107,20 +108,21 @@ char get_mapped_key()
  key = keypad_key_Click();
  if (key == 0) return 0;
  if (key == 16) return 'M';
- if (key == 1) return '1';
- if (key == 2) return '2';
- if (key == 3) return '3';
+ if (key == 1) return '7';
+ if (key == 2) return '8';
+ if (key == 3) return '9';
  if (key == 5) return '4';
  if (key == 6) return '5';
  if (key == 7) return '6';
- if (key == 9) return '7';
- if (key == 10) return '8';
- if (key == 11) return '9';
+ if (key == 9) return '1';
+ if (key == 10) return '2';
+ if (key == 11) return '3';
  if (key == 14) return '0';
  return 0;
 }
 
-int read_password(){
+int read_password()
+{
  enum SystemState toggleState = 1 - current_state;
  memset(password_input, 0, sizeof password_input);
  for (i = 0; i < 4; i++)
@@ -417,7 +419,6 @@ void suspended_mode()
  tries_left = 3;
  current_state = STATE_LOGIN;
 }
-
 
 void main()
 {

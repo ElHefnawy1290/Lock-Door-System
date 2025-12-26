@@ -193,7 +193,7 @@ L_get_mapped_key13:
 	XORLW      1
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key14
-	MOVLW      49
+	MOVLW      55
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key14:
@@ -201,7 +201,7 @@ L_get_mapped_key14:
 	XORLW      2
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key15
-	MOVLW      50
+	MOVLW      56
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key15:
@@ -209,7 +209,7 @@ L_get_mapped_key15:
 	XORLW      3
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key16
-	MOVLW      51
+	MOVLW      57
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key16:
@@ -241,7 +241,7 @@ L_get_mapped_key19:
 	XORLW      9
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key20
-	MOVLW      55
+	MOVLW      49
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key20:
@@ -249,7 +249,7 @@ L_get_mapped_key20:
 	XORLW      10
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key21
-	MOVLW      56
+	MOVLW      50
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key21:
@@ -257,7 +257,7 @@ L_get_mapped_key21:
 	XORLW      11
 	BTFSS      STATUS+0, 2
 	GOTO       L_get_mapped_key22
-	MOVLW      57
+	MOVLW      51
 	MOVWF      R0+0
 	GOTO       L_end_get_mapped_key
 L_get_mapped_key22:
